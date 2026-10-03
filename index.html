@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An open, reproducible explorer for tracing candidate sensory-to-motor pathways through the adult male fruit fly connectome."
+    />
+    <meta name="theme-color" content="#101411" />
+    <title>Fly Connectome — From sensation to movement</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./src/app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Fly Connectome home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>FIELDNOTES <span class="brand-divider">/</span> CONNECTOME</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#explore">Explore the data</a>
+        <a href="#method">Method</a>
+        <a href="#about">About the science</a>
+        <a class="nav-source" href="https://github.com/" aria-label="Project source on GitHub">↗ GitHub</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> AN OPEN CONNECTOME FIELD GUIDE</p>
+          <h1>From sensation<br />to <em>movement.</em></h1>
+          <p class="hero-intro">
+            Follow the annotated wiring of the adult fruit fly. Find the short,
+            structurally strong routes that may link a sensory neuron to a motor neuron.
+          </p>
+          <a class="button button-light" href="#explore">Explore a connectome <span>↓</span></a>
+          <p class="hero-note">Real data. Transparent methods. No claims beyond the wiring.</p>
+        </div>
+        <div class="hero-art" aria-label="Illustration of connected neurons" role="img">
+          <div class="art-label art-label-top">SIGNAL IN <span>01</span></div>
+          <svg class="neuron-art" viewBox="0 0 600 470" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="axon" x1="84" y1="350" x2="525" y2="110" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#D6ED8A" />
+                <stop offset="1" stop-color="#79C9B2" />
+              </linearGradient>
+              <radialGradient id="soma">
+                <stop stop-color="#D6ED8A" stop-opacity=".9" />
+                <stop offset="1" stop-color="#D6ED8A" stop-opacity=".05" />
+              </radialGradient>
+            </defs>
+            <g class="art-branches" stroke="#668274" stroke-width="1.15" opacity=".72">
+              <path d="M93 339 47 291 29 251M93 339 41 358 23 390M93 339 79 400 52 427M93 339 135 381 148 424M93 339 150 323 184 329M93 339 64 285 67 246" />
+              <path d="m184 329 38-46 1-36m-1 36 39 3 24-23m-24 23 5 42m-5-42-30-16-7-35" />
+              <path d="m285 305 44-43 5-50m-5 50 37 18 35-12m-35 12-6 44m6-44-30-24 1-39" />
+              <path d="m401 268 40-52 5-37m-5 37 45 2 22-28m-22 28 10 39m-10-39-28-19 2-34" />
+              <path d="m511 216 42-41 2-45m-2 45 24 9m-24-9 5 42m-5-42-23-21 1-33" />
+              <path d="M167 330 198 352l27-2m-27 2-16 35 15 22m120-152 9-44-16-28m16 28 31-17 4-29m-4 29 30 11 24-13" />
+            </g>
+            <path class="art-main-path" d="M93 339C165 313 179 347 245 294c46-37 52 28 102-25s80 22 119-53c16-30 30-12 45 0" stroke="url(#axon)" stroke-width="2.6" stroke-linecap="round" />
+            <g fill="url(#soma)">
+              <circle cx="93" cy="339" r="37" /><circle cx="245" cy="294" r="31" />
+              <circle cx="347" cy="269" r="30" /><circle cx="466" cy="216" r="31" />
+            </g>
+            <g class="art-nodes">
+              <circle cx="93" cy="339" r="5" /><circle cx="245" cy="294" r="4.5" />
+              <circle cx="347" cy="269" r="4.5" /><circle cx="466" cy="216" r="4.5" />
+              <circle cx="511" cy="216" r="5" />
+            </g>
+            <g class="art-synapses" fill="#D6ED8A">
+              <circle cx="189" cy="329" r="2.4" /><circle cx="291" cy="279" r="2.4" />
+              <circle cx="403" cy="253" r="2.4" /><circle cx="484" cy="216" r="2.4" />
+            </g>
+          </svg>
+          <div class="art-label art-label-bottom">SIGNAL OUT <span>04</span></div>
+          <div class="art-caption"><span>FIG. 01</span> A route through a directed graph</div>
+        </div>
+        <div class="hero-index">MALE CNS <span>·</span> v1.0</div>
+      </section>
+
+      <section class="context-strip" aria-label="Project principles">
+        <div><span class="strip-number">01</span><p><strong>One question</strong><br />Which routes connect selected sensory and motor groups?</p></div>
+        <div><span class="strip-number">02</span><p><strong>One honest measure</strong><br />Synapse counts describe structure, not neural activity.</p></div>
+        <div><span class="strip-number">03</span><p><strong>One reproducible path</strong><br />Bring the source tables; explore them privately in your browser.</p></div>
+      </section>
+
+      <section class="explorer section-wrap" id="explore">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow"><span class="section-index">01</span> THE INTERACTIVE EXPLORER</p>
+            <h2>Start with <em>the wiring.</em></h2>
+          </div>
+          <p class="section-aside">No example data, no pre-baked results. Load source tables to explore the actual connectome.</p>
+        </div>
+
+        <div class="explorer-grid">
+          <aside class="data-panel">
+            <p class="panel-kicker">YOUR SOURCE TABLES</p>
+            <label class="upload-card" for="edges-file">
+              <span class="upload-icon" aria-hidden="true">＋</span>
+              <span class="upload-title">Connection table <b>required</b></span>
+              <span class="upload-help">CSV with a sending neuron, receiving neuron and synapse count.</span>
+              <span class="upload-filename" id="edges-filename">Choose a CSV file</span>
+            </label>
+            <input id="edges-file" type="file" accept=".csv,text/csv" />
+            <label class="upload-card upload-optional" for="neurons-file">
+              <span class="upload-icon" aria-hidden="true">＋</span>
+              <span class="upload-title">Neuron annotations <b>optional</b></span>
+              <span class="upload-help">CSV with body IDs, cell-type labels and (optionally) brain regions.</span>
+              <span class="upload-filename" id="neurons-filename">Choose an annotations CSV</span>
+            </label>
+            <input id="neurons-file" type="file" accept=".csv,text/csv" />
+
+            <div class="privacy-note"><span aria-hidden="true">◉</span><p><strong>Your data stays yours.</strong><br />Files are read locally in this tab. Nothing is uploaded or sent to a server.</p></div>
+            <a class="source-link" href="https://male-cns.janelia.org/download/" target="_blank" rel="noreferrer">Get data from the official Male CNS source ↗</a>
+            <a class="source-link secondary-link" href="https://neuprint.janelia.org/?dataset=male-cns%3Av1.0&qt=findneurons" target="_blank" rel="noreferrer">Open the Male CNS NeuPrint explorer ↗</a>
+          </aside>
+
+          <div class="analysis-panel">
+            <div class="panel-topline">
+              <p class="panel-kicker">PATHWAY QUESTION</p>
+              <span class="live-status" id="analysis-status"><i></i> AWAITING DATA</span>
+            </div>
+            <div class="mapping-grid">
+              <div class="control-group">
+                <label for="source-group">From sensory cell type</label>
+                <select id="source-group" disabled><option>Load annotations to choose a type</option></select>
+              </div>
+              <div class="route-arrow" aria-hidden="true">→</div>
+              <div class="control-group">
+                <label for="target-group">To motor cell type</label>
+                <select id="target-group" disabled><option>Load annotations to choose a type</option></select>
+              </div>
+              <div class="control-group threshold-control">
+                <label for="threshold">Minimum synapses per connection</label>
+                <div class="number-input"><input id="threshold" type="number" min="1" step="1" value="1" /><span>synapses</span></div>
+              </div>
+            </div>
+            <details class="field-mapping" id="field-mapping">
+              <summary>Review column mapping <span>for non-standard CSVs</span></summary>
+              <div id="mapping-controls" class="mapping-controls">
+                <p>Load a connection table to map its columns.</p>
+              </div>
+            </details>
+            <div class="analysis-error" id="analysis-error" role="alert" hidden></div>
+
+            <div class="results-area" id="results-area" aria-live="polite">
+              <div class="empty-state" id="empty-state">
+                <div class="empty-glyph" aria-hidden="true"><span>○</span><span>·</span><span>○</span></div>
+                <h3>The graph begins with the data.</h3>
+                <p>Load real connection and annotation tables to see coverage, connectivity and candidate paths appear here.</p>
+              </div>
+              <div class="results-content" id="results-content" hidden>
+                <div class="metrics-grid" id="metrics-grid"></div>
+                <p class="data-quality-note" id="data-quality-note"></p>
+                <div class="route-results" id="route-results"></div>
+                <div class="viz-heading">
+                  <div><p class="panel-kicker">THE DIRECTED GRAPH</p><h3>Candidate routes</h3></div>
+                  <button class="text-button" id="download-results" type="button" disabled>Download route table ↓</button>
+                </div>
+                <div class="network-frame" id="network-frame">
+                  <svg id="network-svg" role="img" aria-label="Graph of candidate pathways"></svg>
+                  <p class="network-legend"><span class="legend-dot sensory"></span> source <span class="legend-dot motor"></span> target <span class="legend-line"></span> edge width = synapses</p>
+                </div>
+                <div class="edge-table-wrap">
+                  <table class="edge-table">
+                    <thead><tr><th>STEP</th><th>FROM</th><th>TO</th><th>SYNAPSES</th><th>REGION</th></tr></thead>
+                    <tbody id="route-table-body"><tr><td colspan="5">Select cell types to trace candidate routes.</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="threshold-note"><span>ⓘ</span> A path is a candidate structural route, not evidence that a signal travels it. Raising the threshold can change which paths are visible.</div>
+      </section>
+
+      <section class="method-section" id="method">
+        <div class="section-wrap method-inner">
+          <div class="method-intro">
+            <p class="eyebrow"><span class="section-index">02</span> THE ANALYSIS, EXPLAINED</p>
+            <h2>A simple method.<br /><em>Made inspectable.</em></h2>
+            <p>Each choice is visible and repeatable. The analysis starts with descriptive statistics, then treats the connections as a directed, weighted graph.</p>
+          </div>
+          <div class="method-steps">
+            <article><span>01</span><div><h3>Check coverage first</h3><p>Count unique neurons, directed connections, annotated nodes and their cell types. The coverage rate uses graph neurons as its denominator.</p></div></article>
+            <article><span>02</span><div><h3>Respect edge direction</h3><p>A connection runs from the presynaptic sender to the postsynaptic receiver. Duplicate directed pairs are summed; self-connections and invalid rows are excluded.</p></div></article>
+            <article><span>03</span><div><h3>Compare two questions</h3><p><strong>Shortest:</strong> breadth-first search minimizes connection count. <strong>Strength-weighted:</strong> Dijkstra minimizes the sum of 1 / log(1 + synapse count), balancing stronger edges against extra steps.</p></div></article>
+            <article><span>04</span><div><h3>Test the assumption</h3><p>Raise the minimum edge threshold and rerun. If candidate paths change, that sensitivity is part of the result—not something to hide.</p></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="science-section section-wrap" id="about">
+        <div class="science-copy">
+          <p class="eyebrow"><span class="section-index">03</span> WHAT THE SCIENCE CAN SAY</p>
+          <h2>A map of connections<br />is not <em>a movie of a mind.</em></h2>
+          <p>The Male CNS v1.0 is a publicly released, expert-reconstructed connectome of an adult male fruit fly. Its wiring is a remarkable map—but a map alone cannot show which neurons fired, when they fired, or what the animal experienced.</p>
+          <p>Synapse counts are structural measurements, not direct measures of signal strength, behavioral importance or causation. Missing annotations do not imply a neuron has no role. Results from one specimen are not population-level evidence.</p>
+          <a class="citation-link" href="https://male-cns.janelia.org/" target="_blank" rel="noreferrer">Explore the dataset, release notes &amp; visualizations ↗</a>
+        </div>
+        <aside class="science-card">
+          <span class="card-icon" aria-hidden="true">✳</span>
+          <p class="card-label">A CAREFUL INTERPRETATION</p>
+          <blockquote>“This route is present in the annotated wiring. Whether it carries a functional signal requires evidence beyond the connectome.”</blockquote>
+          <p class="card-foot">STRUCTURAL OBSERVATION ≠ FUNCTIONAL PROOF</p>
+        </aside>
+      </section>
+
+      <section class="sources-section">
+        <div class="section-wrap sources-inner">
+          <p class="eyebrow"><span class="section-index">04</span> START WITH THE PRIMARY SOURCES</p>
+          <div class="source-cards">
+            <a href="https://male-cns.janelia.org/" target="_blank" rel="noreferrer"><span>01 / DATASET</span><strong>Male Fly Central Nervous System</strong><i>Janelia FlyEM · Male CNS v1.0 ↗</i></a>
+            <a href="https://male-cns.janelia.org/download/" target="_blank" rel="noreferrer"><span>02 / ACCESS</span><strong>Download &amp; query guide</strong><i>NeuPrint API · Query documentation ↗</i></a>
+            <a href="https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/" target="_blank" rel="noreferrer"><span>03 / CONTEXT</span><strong>Mapping the complete male fruit fly brain</strong><i>Google Research · Release overview ↗</i></a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>FIELDNOTES <span class="brand-divider">/</span> CONNECTOME</span></a>
+      <p>An open, reproducible field guide to structural connectomics.</p>
+      <a href="#top" class="back-top">BACK TO TOP ↑</a>
+    </footer>
+  </body>
+</html>
