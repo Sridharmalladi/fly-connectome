@@ -19,6 +19,11 @@
     <script type="module" src="./src/app.js"></script>
   </head>
   <body>
+    <div class="demo-ribbon">
+      <span class="ribbon-live"><i></i> READY TO TRACE</span>
+      <p><strong>Three real fly-brain routes.</strong> Pick a sensory system and watch its annotated connections unfold.</p>
+      <a href="#demo-slices">TRY REAL DATA <span>↓</span></a>
+    </div>
     <header class="site-header">
       <a class="brand" href="#top" aria-label="Fly Connectome home">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -98,12 +103,55 @@
             <p class="eyebrow"><span class="section-index">01</span> THE INTERACTIVE EXPLORER</p>
             <h2>Start with <em>the wiring.</em></h2>
           </div>
-          <p class="section-aside">No example data, no pre-baked results. Load source tables to explore the actual connectome.</p>
+          <p class="section-aside">Start with three compact, real-data routes. Then bring your own source tables to explore further.</p>
+        </div>
+
+        <div class="sample-gallery" id="demo-slices">
+          <div class="sample-heading">
+            <div>
+              <p class="panel-kicker"><span class="sample-live-dot"></span> START WITH SOURCE DATA</p>
+              <h3>Pick a signal. <em>Trace the wiring.</em></h3>
+            </div>
+            <p>Three small, reproducible pathways queried from Male CNS v1.0. Each slice includes real neuron IDs, cell types and connection weights.</p>
+          </div>
+          <div class="sample-cards">
+            <article class="sample-card" data-sample-card="visual">
+              <div class="sample-card-top"><span class="sample-icon visual-icon" aria-hidden="true">◉</span><span class="sample-modality">01 / LIGHT</span></div>
+              <h4>Photoreceptor → movement</h4>
+              <p>Follow an R1–R6 visual neuron from the optic lobe to a leg motor neuron.</p>
+              <div class="sample-stats"><span data-demo-hops></span><span data-demo-synapses></span></div>
+              <button class="sample-load" type="button" data-load-slice="visual" aria-pressed="false">Trace this real path <span>↗</span></button>
+            </article>
+            <article class="sample-card" data-sample-card="olfactory">
+              <div class="sample-card-top"><span class="sample-icon olfactory-icon" aria-hidden="true">≋</span><span class="sample-modality">02 / ODOR</span></div>
+              <h4>Odor receptor → movement</h4>
+              <p>Trace an ORN_DA1 olfactory receptor via the antennal lobe to a motor neuron.</p>
+              <div class="sample-stats"><span data-demo-hops></span><span data-demo-synapses></span></div>
+              <button class="sample-load" type="button" data-load-slice="olfactory" aria-pressed="false">Trace this real path <span>↗</span></button>
+            </article>
+            <article class="sample-card" data-sample-card="mechanosensory">
+              <div class="sample-card-top"><span class="sample-icon mechanical-icon" aria-hidden="true">⌁</span><span class="sample-modality">03 / VIBRATION</span></div>
+              <h4>Antenna → movement</h4>
+              <p>Trace a JO-unclear mechanosensory neuron through the central brain.</p>
+              <div class="sample-stats"><span data-demo-hops></span><span data-demo-synapses></span></div>
+              <button class="sample-load" type="button" data-load-slice="mechanosensory" aria-pressed="false">Trace this real path <span>↗</span></button>
+            </article>
+          </div>
+          <div class="sample-provenance">
+            <span>DATA SOURCE</span>
+            <a href="https://neuprint.janelia.org/?dataset=male-cns%3Av1.0&qt=findneurons" target="_blank" rel="noreferrer">Janelia NeuPrint · Male CNS v1.0 ↗</a>
+            <span>QUERIED 03 OCT 2026</span>
+            <a class="sample-manifest-link" href="./data/demo-slices.json" download>Download the real slices + source queries ↓</a>
+            <details>
+              <summary>How these slices were made</summary>
+              <p>Each compact slice preserves one shortest directed path returned by a recorded, bounded-length Cypher query against the public Male CNS v1.0 NeuPrint API. These source-derived rows are real measurements; the slice is deliberately not a complete neighborhood or a fresh search for alternative paths. The annotation includes neuron IDs, published cell types, superclass, class, instance and the recorded ROI with the greatest synapse weight. See <a href="./data/demo-slices.json">the complete slice manifest and query provenance</a>.</p>
+            </details>
+          </div>
         </div>
 
         <div class="explorer-grid">
           <aside class="data-panel">
-            <p class="panel-kicker">YOUR SOURCE TABLES</p>
+            <p class="panel-kicker">LOAD YOUR OWN TABLES</p>
             <label class="upload-card" for="edges-file">
               <span class="upload-icon" aria-hidden="true">＋</span>
               <span class="upload-title">Connection table <b>required</b></span>
@@ -119,16 +167,25 @@
             </label>
             <input id="neurons-file" type="file" accept=".csv,text/csv" />
 
-            <div class="privacy-note"><span aria-hidden="true">◉</span><p><strong>Your data stays yours.</strong><br />Files are read locally in this tab. Nothing is uploaded or sent to a server.</p></div>
+            <div class="privacy-note"><span aria-hidden="true">◉</span><p><strong>Your files stay yours.</strong><br />Uploaded tables are read locally in this tab, never sent to a server.</p></div>
             <a class="source-link" href="https://male-cns.janelia.org/download/" target="_blank" rel="noreferrer">Get data from the official Male CNS source ↗</a>
             <a class="source-link secondary-link" href="https://neuprint.janelia.org/?dataset=male-cns%3Av1.0&qt=findneurons" target="_blank" rel="noreferrer">Open the Male CNS NeuPrint explorer ↗</a>
           </aside>
 
-          <div class="analysis-panel">
+          <div class="analysis-panel" id="analysis-panel">
             <div class="panel-topline">
               <p class="panel-kicker">PATHWAY QUESTION</p>
               <span class="live-status" id="analysis-status"><i></i> AWAITING DATA</span>
             </div>
+            <div class="active-dataset" id="active-dataset" hidden>
+              <span class="dataset-check">✓</span>
+              <div><strong id="active-dataset-title"></strong><small id="active-dataset-note"></small></div>
+              <a href="https://male-cns.janelia.org/" target="_blank" rel="noreferrer">SOURCE ↗</a>
+            </div>
+            <details class="query-provenance" id="active-query" hidden>
+              <summary>Inspect the exact NeuPrint query for this slice</summary>
+              <pre><code id="source-query"></code></pre>
+            </details>
             <div class="mapping-grid">
               <div class="control-group">
                 <label for="source-group">From sensory cell type</label>
@@ -168,11 +225,19 @@
                 </div>
                 <div class="network-frame" id="network-frame">
                   <svg id="network-svg" role="img" aria-label="Graph of candidate pathways"></svg>
-                  <p class="network-legend"><span class="legend-dot sensory"></span> source <span class="legend-dot motor"></span> target <span class="legend-line"></span> edge width = synapses</p>
+                  <p class="network-legend"><span class="legend-dot sensory"></span> sensory input <span class="legend-dot motor"></span> motor output <span class="legend-line"></span> width = synapses</p>
+                </div>
+                <div class="path-navigator" id="path-navigator">
+                  <button class="play-route" id="play-route" type="button" aria-label="Play path animation" disabled>▶</button>
+                  <div class="path-scrubber">
+                    <div class="path-scrubber-heading"><label for="path-progress">WALK THE PATH</label><span id="path-step-count">Choose a route above</span></div>
+                    <input id="path-progress" type="range" min="0" max="0" value="0" step="1" disabled aria-label="Move through the neuron pathway" />
+                    <div class="path-stage" id="path-stage" aria-live="polite">Each stop reveals a real cell type, neuron ID and dominant annotated ROI.</div>
+                  </div>
                 </div>
                 <div class="edge-table-wrap">
                   <table class="edge-table">
-                    <thead><tr><th>STEP</th><th>FROM</th><th>TO</th><th>SYNAPSES</th><th>REGION</th></tr></thead>
+                    <thead><tr><th>STEP</th><th>FROM</th><th>TO</th><th>SYNAPSES</th><th>DOMINANT ROI</th></tr></thead>
                     <tbody id="route-table-body"><tr><td colspan="5">Select cell types to trace candidate routes.</td></tr></tbody>
                   </table>
                 </div>

@@ -6,6 +6,11 @@ const state = {
   edgeColumns: {},
   annotationColumns: {},
   results: null,
+  demoManifest: null,
+  activeDemo: null,
+  activePath: null,
+  pathStep: 0,
+  playTimer: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -22,15 +27,20 @@ function setError(message = "") {
 
 function clearResults() {
   state.results = null;
+  state.activePath = null;
+  stopPathPlayback();
   $("empty-state").hidden = false;
   $("results-content").hidden = true;
   $("download-results").disabled = true;
+  $("path-progress").disabled = true;
+  $("play-route").disabled = true;
   updateStatus(false, "AWAITING DATA");
 }
 
 function updateStatus(ready, text) {
   const status = $("analysis-status");
   status.classList.toggle("ready", ready);
+  if (!state.activeDemo) status.removeAttribute("title");
   status.innerHTML = `<i></i> ${text}`;
 }
 
@@ -126,8 +136,9 @@ function traceLabelFor(id, annotations) {
 }
 
 function calculatePaths(edges, annotations) {
-  const from = getSelectedNodeIds(annotations, $("source-group").value);
-  const to = getSelectedNodeIds(annotations, $("target-group").value);
+  const graphNodes = new Set(edges.flatMap((edge) => [edge.source, edge.target]));
+  const from = getSelectedNodeIds(annotations, $("source-group").value).filter((id) => graphNodes.has(id));
+  const to = getSelectedNodeIds(annotations, $("target-group").value).filter((id) => graphNodes.has(id));
   if (!from.length || !to.length) return { from, to, shortest: null, weighted: null };
   return {
     from, to,
@@ -208,7 +219,7 @@ function renderGraph(path, annotations) {
     line.setAttribute("y1", "79");
     line.setAttribute("x2", String(xAt(index + 1) - 7));
     line.setAttribute("y2", "79");
-    line.setAttribute("class", "network-edge");
+    line.setAttribute("class", `network-edge${index < state.pathStep ? " traversed" : ""}${index === state.pathStep ? " current-edge" : ""}`);
     line.setAttribute("stroke-width", String(1 + 2 * Math.sqrt(edge.weight / maxWeight)));
     line.setAttribute("aria-label", `${formatNumber(edge.weight)} ${edge.weight === 1 ? "synapse" : "synapses"}`);
     line.setAttribute("marker-end", "url(#arrowhead)");
@@ -242,8 +253,78 @@ function renderGraph(path, annotations) {
       regionText.textContent = region.slice(0, 18);
       group.append(circle, text, regionText);
     } else group.append(circle, text);
+    if (index === state.pathStep) {
+      const traveler = document.createElementNS(ns, "circle");
+      traveler.setAttribute("cx", String(xAt(index)));
+      traveler.setAttribute("cy", "79");
+      traveler.setAttribute("r", "13");
+      traveler.setAttribute("class", "path-traveler");
+      group.append(traveler);
+    }
     svg.append(group);
   });
+}
+
+function renderPathStep(path, annotations) {
+  const slider = $("path-progress");
+  const playButton = $("play-route");
+  if (!path?.edges.length) {
+    stopPathPlayback();
+    state.pathStep = 0;
+    slider.max = "0";
+    slider.value = "0";
+    slider.disabled = true;
+    playButton.disabled = true;
+    $("path-step-count").textContent = "Choose a route above";
+    $("path-stage").textContent = "Each stop reveals a real cell type, neuron ID and dominant annotated ROI.";
+    return;
+  }
+  state.pathStep = Math.min(state.pathStep, path.edges.length);
+  slider.max = String(path.edges.length);
+  slider.value = String(state.pathStep);
+  slider.disabled = false;
+  playButton.disabled = false;
+  const nodeId = state.pathStep === 0 ? path.edges[0].source : path.edges[state.pathStep - 1].target;
+  const annotation = annotations.get(nodeId);
+  const role = state.pathStep === 0 ? "SENSORY INPUT" : state.pathStep === path.edges.length ? "MOTOR OUTPUT" : "INTERMEDIATE NEURON";
+  const region = annotation?.region ? ` · ${annotation.region}` : "";
+  $("path-step-count").textContent = `${state.pathStep} / ${path.edges.length} connections`;
+  $("path-stage").textContent = `${role} · ${traceLabelFor(nodeId, annotations)}${region}`;
+}
+
+function stopPathPlayback() {
+  if (state.playTimer !== null) {
+    clearInterval(state.playTimer);
+    state.playTimer = null;
+  }
+  const button = $("play-route");
+  if (button) {
+    button.textContent = "▶";
+    button.setAttribute("aria-label", "Play path animation");
+    button.setAttribute("aria-pressed", "false");
+  }
+}
+
+function togglePathPlayback() {
+  if (!state.activePath?.edges.length) return;
+  if (state.playTimer !== null) {
+    stopPathPlayback();
+    return;
+  }
+  const button = $("play-route");
+  button.textContent = "Ⅱ";
+  button.setAttribute("aria-label", "Pause path animation");
+  button.setAttribute("aria-pressed", "true");
+  state.playTimer = setInterval(() => {
+    if (state.pathStep >= state.activePath.edges.length) {
+      state.pathStep = 0;
+    } else {
+      state.pathStep += 1;
+    }
+    renderPathStep(state.activePath, state.results.annotations);
+    renderGraph(state.activePath, state.results.annotations);
+    if (state.pathStep === state.activePath.edges.length) stopPathPlayback();
+  }, 850);
 }
 
 function renderRouteTable(path, annotations) {
@@ -279,7 +360,6 @@ function runAnalysis() {
   try {
     const threshold = Math.max(1, Number($("threshold").value) || 1);
     const normalized = normalizeEdges(state.edgeRows, state.edgeColumns, threshold);
-    if (!normalized.edges.length) throw new Error("No valid connections meet this synapse threshold. Check the mapped columns or lower the threshold.");
     const annotations = buildAnnotations(state.annotationRows, state.annotationColumns);
     const summary = getGraphSummary(normalized.edges, annotations);
     const paths = calculatePaths(normalized.edges, annotations);
@@ -290,22 +370,39 @@ function runAnalysis() {
       `${formatNumber(normalized.selfConnections)} self-connections excluded · ${formatNumber(normalized.belowThreshold)} aggregated connections below threshold`;
     renderRouteCards(paths, annotations);
     const path = paths.shortest ?? paths.weighted;
+    stopPathPlayback();
+    state.pathStep = 0;
+    state.activePath = path;
     renderGraph(path, annotations);
+    renderPathStep(path, annotations);
     renderRouteTable(path, annotations);
     $("empty-state").hidden = true;
     $("results-content").hidden = false;
     $("download-results").disabled = !path?.edges.length;
-    updateStatus(true, `${formatNumber(summary.edges)} CONNECTIONS`);
-    if (!paths.from.length || !paths.to.length) {
+    updateStatus(true, state.activeDemo ? "REAL MALE CNS v1.0 SLICE" : `${formatNumber(summary.edges)} CONNECTIONS`);
+    if (state.activeDemo) {
+      const retainedRows = normalized.edges.length;
+      $("data-quality-note").textContent =
+        `Source-verified ${state.activeDemo.modality.toLowerCase()} slice · ${retainedRows} of ${state.activeDemo.weights.length} source-path edges meet this threshold · ` +
+        `this teaching slice is not a full network neighborhood`;
+    }
+    if (!normalized.edges.length) {
+      setError("No source connections meet this synapse threshold. Lower the threshold to bring real edges back into the graph.");
+      updateStatus(false, "NO EDGES AT THIS THRESHOLD");
+    } else if (!paths.from.length || !paths.to.length) {
       setError("Load neuron annotations and select source and target cell types to trace candidate routes. Descriptive graph statistics are available without annotations.");
     } else if (!paths.shortest && !paths.weighted) {
       setError("No directed route connects the selected groups at this threshold. Try lowering the threshold or choosing a different group.");
     }
   } catch (error) {
     state.results = null;
+    state.activePath = null;
+    state.pathStep = 0;
+    stopPathPlayback();
     $("results-content").hidden = true;
     $("empty-state").hidden = false;
     $("download-results").disabled = true;
+    renderPathStep(null, new Map());
     setError(error.message);
     updateStatus(false, "CHECK COLUMN MAPPING");
   }
@@ -315,9 +412,113 @@ async function readCSV(file) {
   return parseCSV(await file.text());
 }
 
+function clearDemoSelection() {
+  state.activeDemo = null;
+  $("active-dataset").hidden = true;
+  $("active-query").hidden = true;
+  $("analysis-status").removeAttribute("title");
+  document.querySelectorAll(".sample-card").forEach((card) => card.classList.remove("selected"));
+  document.querySelectorAll("[data-load-slice]").forEach((button) => button.setAttribute("aria-pressed", "false"));
+}
+
+function renderDemoCards(manifest) {
+  for (const slice of manifest.slices) {
+    const card = document.querySelector(`[data-sample-card="${CSS.escape(slice.id)}"]`);
+    if (!card) continue;
+    card.querySelector("[data-demo-hops]").textContent = `${slice.hops} connections`;
+    card.querySelector("[data-demo-synapses]").textContent = `${formatNumber(slice.totalSynapses)} synapses`;
+  }
+}
+
+function csvDownload(filename, rows) {
+  const text = rows.map((row) => row.map(csvEscape).join(",")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+async function loadDemoSlice(sliceId, scrollToResults = false) {
+  const buttons = [...document.querySelectorAll("[data-load-slice]")];
+  buttons.forEach((button) => { button.disabled = true; });
+  updateStatus(false, "LOADING REAL DATA SLICE");
+  setError();
+  try {
+    if (!state.demoManifest) {
+      const response = await fetch("./data/demo-slices.json");
+      if (!response.ok) throw new Error(`The bundled source-data file returned HTTP ${response.status}.`);
+      state.demoManifest = await response.json();
+      renderDemoCards(state.demoManifest);
+    }
+    const slice = state.demoManifest.slices.find((entry) => entry.id === sliceId);
+    if (!slice) throw new Error("That real-data slice was not found in the source manifest.");
+    stopPathPlayback();
+    edgeInput.value = "";
+    annotationInput.value = "";
+    state.activeDemo = slice;
+    state.edgeRows = slice.weights.map((weight, index) => ({
+      bodyId_pre: String(slice.nodes[index].id),
+      bodyId_post: String(slice.nodes[index + 1].id),
+      weight: String(weight),
+    }));
+    state.annotationRows = slice.nodes.map((node) => ({
+      bodyId: String(node.id),
+      type: node.type,
+      region: node.brainRegion,
+    }));
+    state.edgeColumns = { source: "bodyId_pre", target: "bodyId_post", weight: "weight" };
+    state.annotationColumns = { id: "bodyId", type: "type", region: "region" };
+    $("edges-filename").textContent = `${slice.nodes.length - 1} source edges · Male CNS v1.0`;
+    $("neurons-filename").textContent = `${slice.nodes.length} source annotations · Male CNS v1.0`;
+    $("threshold").value = "1";
+    inferAndRenderMappings();
+    $("source-group").value = slice.sourceType;
+    $("target-group").value = slice.targetType;
+    document.querySelectorAll(".sample-card").forEach((card) => {
+      card.classList.toggle("selected", card.dataset.sampleCard === slice.id);
+    });
+    buttons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.loadSlice === slice.id));
+    });
+    $("active-dataset-title").textContent = `${slice.modality} · ${slice.title}`;
+    $("active-dataset-note").textContent =
+      `Official source data · ${slice.hops} directed connections · sensory neuron ${slice.sourceId}`;
+    $("active-dataset").hidden = false;
+    $("source-query").textContent =
+      `PATH QUERY\n${slice.query}\n\nANNOTATION QUERY\n${slice.annotationQuery}`;
+    $("active-query").hidden = false;
+    runAnalysis();
+    $("analysis-status").setAttribute("title", "Real connection and neuron rows queried from the official public Male CNS v1.0 NeuPrint database.");
+    if (scrollToResults) {
+      $("results-area").scrollIntoView({ behavior: "instant", block: "start" });
+    }
+  } catch (error) {
+    state.results = null;
+    state.activePath = null;
+    stopPathPlayback();
+    $("results-content").hidden = true;
+    $("empty-state").hidden = false;
+    $("path-progress").disabled = true;
+    $("play-route").disabled = true;
+    setError(`Could not load the real-data slice. ${error.message}`);
+    updateStatus(false, "SOURCE SLICE UNAVAILABLE");
+  } finally {
+    buttons.forEach((button) => { button.disabled = false; });
+  }
+}
+
 edgeInput.addEventListener("change", async () => {
   const file = edgeInput.files?.[0];
   if (!file) return;
+  if (state.activeDemo) {
+    clearDemoSelection();
+    state.annotationRows = [];
+    state.annotationColumns = {};
+    annotationInput.value = "";
+    $("neurons-filename").textContent = "Choose an annotations CSV";
+  }
   $("edges-filename").textContent = file.name;
   updateStatus(false, "READING CONNECTIONS");
   try {
@@ -339,6 +540,14 @@ edgeInput.addEventListener("change", async () => {
 annotationInput.addEventListener("change", async () => {
   const file = annotationInput.files?.[0];
   if (!file) return;
+  if (state.activeDemo) {
+    clearDemoSelection();
+    state.edgeRows = [];
+    state.edgeColumns = {};
+    edgeInput.value = "";
+    $("edges-filename").textContent = "Choose a CSV file";
+    clearResults();
+  }
   $("neurons-filename").textContent = file.name;
   try {
     state.annotationRows = await readCSV(file);
@@ -362,6 +571,17 @@ annotationInput.addEventListener("change", async () => {
 $("source-group").addEventListener("change", runAnalysis);
 $("target-group").addEventListener("change", runAnalysis);
 $("threshold").addEventListener("change", runAnalysis);
+$("path-progress").addEventListener("input", () => {
+  if (!state.activePath || !state.results) return;
+  stopPathPlayback();
+  state.pathStep = Number($("path-progress").value);
+  renderGraph(state.activePath, state.results.annotations);
+  renderPathStep(state.activePath, state.results.annotations);
+});
+$("play-route").addEventListener("click", togglePathPlayback);
+document.querySelectorAll("[data-load-slice]").forEach((button) => {
+  button.addEventListener("click", () => loadDemoSlice(button.dataset.loadSlice, true));
+});
 $("download-results").addEventListener("click", () => {
   const path = state.results?.paths.shortest ?? state.results?.paths.weighted;
   if (!path?.edges.length) return;
@@ -376,15 +596,11 @@ $("download-results").addEventListener("click", () => {
     String(edge.weight),
     annotations.get(edge.target)?.region ?? "",
   ]));
-  const csv = rows.map((row) => row.map(csvEscape).join(",")).join("\r\n");
-  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "candidate-connectome-route.csv";
-  link.click();
-  URL.revokeObjectURL(url);
+  csvDownload("candidate-connectome-route.csv", rows);
 });
 
 document.querySelectorAll(".nav-source").forEach((link) => {
   link.href = "https://github.com/Sridharmalladi/fly-connectome";
 });
+
+loadDemoSlice("visual");

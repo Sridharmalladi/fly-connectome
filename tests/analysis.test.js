@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { buildAnnotations, findPath, getGraphSummary, guessColumn, normalizeEdges, parseCSV } from "../src/analysis.js";
+
+const demoManifest = JSON.parse(readFileSync(new URL("../data/demo-slices.json", import.meta.url), "utf8"));
 
 test("parses quoted CSV fields, escaped quotes, BOM and CRLF", () => {
   assert.deepEqual(parseCSV('\uFEFFid,label\r\n1,"cell, ""A"""\r\n2,cell B\r\n'), [
@@ -76,4 +79,28 @@ test("supports multiple source and target neurons and a zero-edge match", () => 
   const edges = [{ source: "source-2", target: "target-1", weight: 8 }];
   assert.deepEqual(findPath(edges, ["source-1", "source-2"], ["target-1"], "shortest").edges, edges);
   assert.deepEqual(findPath(edges, ["same"], ["same"], "shortest"), { edges: [], cost: 0 });
+});
+
+test("bundled real-data slices match their source IDs, path weights and recorded summaries", () => {
+  assert.equal(demoManifest.dataset, "male-cns:v1.0");
+  assert.equal(demoManifest.slices.length, 3);
+  for (const slice of demoManifest.slices) {
+    assert.ok(slice.query.includes(String(slice.sourceId)));
+    assert.ok(slice.query.includes(String(slice.targetId)));
+    assert.ok(slice.annotationQuery.includes(String(slice.targetId)));
+    assert.equal(slice.nodes.length - 1, slice.weights.length);
+    assert.equal(slice.nodes[0].id, slice.sourceId);
+    assert.equal(slice.nodes.at(-1).id, slice.targetId);
+    assert.equal(slice.nodes[0].type, slice.sourceType);
+    assert.equal(slice.nodes.at(-1).type, slice.targetType);
+    assert.equal(slice.weights.reduce((sum, weight) => sum + weight, 0), slice.totalSynapses);
+    const edges = slice.weights.map((weight, index) => ({
+      source: String(slice.nodes[index].id),
+      target: String(slice.nodes[index + 1].id),
+      weight,
+    }));
+    const path = findPath(edges, [String(slice.sourceId)], [String(slice.targetId)]);
+    assert.equal(path.edges.length, slice.hops, slice.id);
+    assert.deepEqual(path.edges, edges, slice.id);
+  }
 });

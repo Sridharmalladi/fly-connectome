@@ -1,0 +1,76 @@
+{
+  "dataset": "male-cns:v1.0",
+  "retrieved": "2026-10-03",
+  "api": "https://neuprint.janelia.org/api/custom/custom",
+  "source": "https://male-cns.janelia.org/",
+  "attribution": "Male CNS v1.0, Janelia FlyEM / Google Research / University of Cambridge / MRC Laboratory of Molecular Biology. Connectome data queried from the public NeuPrint API.",
+  "method": "Each slice is one source-verified, shortest directed path returned by the stated Cypher query. These are selected path examples, not complete local neighborhoods or the full connectome. brainRegion is the ROI with the largest synweight in the source neuron's roiInfo.",
+  "slices": [
+    {
+      "id": "visual",
+      "title": "Light → leg motor neuron",
+      "modality": "VISUAL",
+      "description": "A photoreceptor-to-motor route through the optic lobe and a descending neuron.",
+      "sourceType": "R1-R6",
+      "targetType": "Pleural remotor/abductor MN",
+      "sourceId": 557582,
+      "targetId": 902310,
+      "hops": 5,
+      "totalSynapses": 7,
+      "query": "MATCH p=shortestPath((s:`male-cns_Neuron` {bodyId:557582})-[:ConnectsTo*..10]->(t:`male-cns_Neuron` {bodyId:902310})) RETURN [n IN nodes(p) | {id:n.bodyId,type:n.type,superclass:n.superclass,class:n.class,instance:n.instance}] AS nodes, [r IN relationships(p) | r.weight] AS weights LIMIT 1",
+      "annotationQuery": "MATCH (n:`male-cns_Neuron`) WHERE n.bodyId IN [557582,170941,34403,10170,523769,902310] RETURN n.bodyId AS id,n.type AS type,n.superclass AS superclass,n.class AS class,n.instance AS instance,n.roiInfo AS roiInfo",
+      "nodes": [
+        { "id": 557582, "type": "R1-R6", "superclass": "ol_sensory", "class": "visual", "instance": "R1-R6_R", "brainRegion": "LA(R)" },
+        { "id": 170941, "type": "L4", "superclass": "ol_intrinsic", "class": "", "instance": "L4_R", "brainRegion": "Optic(R)" },
+        { "id": 34403, "type": "Lawf2", "superclass": "ol_intrinsic", "class": "", "instance": "Lawf2_R", "brainRegion": "Optic(R)" },
+        { "id": 10170, "type": "MeVPMe2", "superclass": "visual_projection", "class": "", "instance": "MeVPMe2_R", "brainRegion": "Optic(R)" },
+        { "id": 523769, "type": "DNa02", "superclass": "descending_neuron", "class": "", "instance": "DNa02_L", "brainRegion": "CentralBrain" },
+        { "id": 902310, "type": "Pleural remotor/abductor MN", "superclass": "vnc_motor", "class": "", "instance": "Pleural remotor/abductor MN_L", "brainRegion": "VNC" }
+      ],
+      "weights": [1, 2, 1, 1, 2]
+    },
+    {
+      "id": "olfactory",
+      "title": "Odor → leg motor neuron",
+      "modality": "OLFACTORY",
+      "description": "An antennal-lobe olfactory receptor route through projection and descending neurons.",
+      "sourceType": "ORN_DA1",
+      "targetType": "Ta depressor MN",
+      "sourceId": 128752,
+      "targetId": 1050380236,
+      "hops": 3,
+      "totalSynapses": 32,
+      "query": "MATCH p=shortestPath((s:`male-cns_Neuron` {bodyId:128752})-[:ConnectsTo*..12]->(t:`male-cns_Neuron` {bodyId:1050380236})) RETURN [n IN nodes(p) | {id:n.bodyId,type:n.type,superclass:n.superclass,class:n.class,instance:n.instance}] AS nodes, [r IN relationships(p) | r.weight] AS weights LIMIT 1",
+      "annotationQuery": "MATCH (n:`male-cns_Neuron`) WHERE n.bodyId IN [128752,10402,11693,1050380236] RETURN n.bodyId AS id,n.type AS type,n.superclass AS superclass,n.class AS class,n.instance AS instance,n.roiInfo AS roiInfo",
+      "nodes": [
+        { "id": 128752, "type": "ORN_DA1", "superclass": "cb_sensory", "class": "olfactory", "instance": "ORN_DA1_R", "brainRegion": "AL(R)" },
+        { "id": 10402, "type": "MZ_lv2PN", "superclass": "cb_intrinsic", "class": "ALPN", "instance": "MZ_lv2PN_R", "brainRegion": "CentralBrain" },
+        { "id": 11693, "type": "DNd03", "superclass": "descending_neuron", "class": "", "instance": "DNd03_R", "brainRegion": "VNC" },
+        { "id": 1050380236, "type": "Ta depressor MN", "superclass": "vnc_motor", "class": "", "instance": "Ta depressor MN_R", "brainRegion": "LegNp(T1)(R)" }
+      ],
+      "weights": [30, 1, 1]
+    },
+    {
+      "id": "mechanosensory",
+      "title": "Antenna → leg motor neuron",
+      "modality": "MECHANOSENSORY",
+      "description": "A Johnston's-organ mechanosensory route through the central brain and a descending neuron.",
+      "sourceType": "JO-unclear",
+      "targetType": "Ta depressor MN",
+      "sourceId": 341661,
+      "targetId": 1050380236,
+      "hops": 4,
+      "totalSynapses": 5,
+      "query": "MATCH p=shortestPath((s:`male-cns_Neuron` {bodyId:341661})-[:ConnectsTo*..12]->(t:`male-cns_Neuron` {bodyId:1050380236})) RETURN [n IN nodes(p) | {id:n.bodyId,type:n.type,superclass:n.superclass,class:n.class,instance:n.instance}] AS nodes, [r IN relationships(p) | r.weight] AS weights LIMIT 1",
+      "annotationQuery": "MATCH (n:`male-cns_Neuron`) WHERE n.bodyId IN [341661,918039,20907,11500,1050380236] RETURN n.bodyId AS id,n.type AS type,n.superclass AS superclass,n.class AS class,n.instance AS instance,n.roiInfo AS roiInfo",
+      "nodes": [
+        { "id": 341661, "type": "JO-unclear", "superclass": "cb_sensory", "class": "mechanosensory", "instance": "JO-unclear_R", "brainRegion": "CentralBrain" },
+        { "id": 918039, "type": "JO-EV2", "superclass": "cb_sensory", "class": "mechanosensory", "instance": "JO-EV2_R", "brainRegion": "CentralBrain" },
+        { "id": 20907, "type": "WED098", "superclass": "cb_intrinsic", "class": "", "instance": "WED098_R", "brainRegion": "CentralBrain" },
+        { "id": 11500, "type": "DNge043", "superclass": "descending_neuron", "class": "", "instance": "DNge043(hb1499778528)_R", "brainRegion": "CentralBrain" },
+        { "id": 1050380236, "type": "Ta depressor MN", "superclass": "vnc_motor", "class": "", "instance": "Ta depressor MN_R", "brainRegion": "LegNp(T1)(R)" }
+      ],
+      "weights": [1, 2, 1, 1]
+    }
+  ]
+}

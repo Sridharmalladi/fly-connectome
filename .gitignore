@@ -1,5 +1,6 @@
 .DS_Store
-data/
+data/*
+!data/demo-slices.json
 *.csv
 *.parquet
 *.feather

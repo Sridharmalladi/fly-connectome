@@ -2,22 +2,22 @@
 
 **From sensation to movement: exploring candidate pathways in the adult fruit fly connectome.**
 
-An open, browser-based data-science project for inspecting the public [Male CNS v1.0 connectome](https://male-cns.janelia.org/). Load real connection and neuron-annotation CSVs to check data coverage, compare two sensory-to-motor path definitions, inspect their supporting edges, and download a traceable route table.
+An open, browser-based data-science project for inspecting the public [Male CNS v1.0 connectome](https://male-cns.janelia.org/). Try one of three compact, source-verified sensory-to-motor slices immediately, or load your own connection and neuron-annotation CSVs to explore further.
 
 [![Live site](https://img.shields.io/badge/Live%20site-Visit-9fbf72)](https://sridharmalladi.github.io/fly-connectome/)
 [![Tests and deployment](https://github.com/Sridharmalladi/fly-connectome/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/Sridharmalladi/fly-connectome/actions/workflows/pages.yml)
 
-> **No results are built in.** This repository contains no connectome data and no simulated observations. The hero neuron artwork is conceptual, not a measured route. The explorer produces results only after you load source tables. Files are read in your browser and are not uploaded.
+> **The included starter data are real, not simulated.** They are three small paths queried from Male CNS v1.0 and are attributed with their source queries in [`data/demo-slices.json`](./data/demo-slices.json). Each sample is a single selected path—not the full connectome or a complete neighborhood. The explorer also accepts source CSV files, which remain in your browser. The hero neuron artwork is conceptual.
 
 ## Start here
 
-1. Visit the [Male CNS data portal](https://male-cns.janelia.org/) and its [download and query guide](https://male-cns.janelia.org/download/). The project uses the **Male CNS v1.0** release.
-2. In the [Male CNS NeuPrint explorer](https://neuprint.janelia.org/?dataset=male-cns%3Av1.0&qt=findneurons), inspect cell-type annotations first. Choose one labeled sensory type and one labeled motor type that are both present in the data. Do not infer either role from an unlabeled cell.
-3. Export or query a **bounded, directed connection subgraph** containing the selected source neurons, the selected target neurons, and any intermediate neurons and edges needed to connect them. A table containing only direct sensory-to-motor edges cannot reveal a multi-step route. Use total connection weights, not a per-region edge export: summing repeated region rows would double-count a connection. Record how you selected the subgraph, the dataset version, date, filters, and any API query settings.
-4. Obtain the matching neuron-annotation table for those neurons. Preserve body IDs; include cell-type labels and, if available, brain-region annotations.
-5. Open the [live site](https://sridharmalladi.github.io/fly-connectome/) and load the connection CSV and annotation CSV. Check the column mapping and annotation coverage before interpreting a route. Raise the minimum-synapse threshold and repeat the analysis to see whether the routes change.
+1. On the [live explorer](https://sridharmalladi.github.io/fly-connectome/), choose **Trace this real path** on one of the three data cards to explore its source neurons and recorded connection weights. Adjust the minimum synapse threshold, use the path scrubber or Play button to walk neuron-by-neuron, and download the route table.
+2. Open **How these slices were made** or **Inspect the exact NeuPrint query** to review provenance. The starter rows were queried on 2026-10-03 from the public read-only [Male CNS v1.0 dataset](https://male-cns.janelia.org/) through [Janelia NeuPrint](https://neuprint.janelia.org/?dataset=male-cns%3Av1.0&qt=findneurons). The exact slice and annotation queries are included with the data.
+3. To run a broader analysis, visit the [Male CNS data portal](https://male-cns.janelia.org/) and its [download and query guide](https://male-cns.janelia.org/download/). In the [Male CNS NeuPrint explorer](https://neuprint.janelia.org/?dataset=male-cns%3Av1.0&qt=findneurons), inspect cell-type annotations first. Choose one labeled sensory type and one labeled motor type present in the data.
+4. Export or query a **bounded, directed connection subgraph** containing the selected source neurons, target neurons, and the intermediate neurons and edges needed to connect them. A direct-edge-only table cannot reveal a multi-step route. Use total connection weights, not a per-region export, because summing repeated regional rows can double-count a connection. Record the dataset version, date, filters and query settings.
+5. Obtain the matching neuron annotations. Preserve body IDs and include cell-type labels and (if available) brain regions. Load both CSV files in the explorer, verify the column mappings and annotation coverage, then vary the threshold to check route sensitivity.
 
-The portal documents programmatic access through [`neuprint-python`](https://connectome-neuprint.github.io/neuprint-python/docs/). NeuPrint account credentials may be required to download/query data. **Never put an API token in this repository or in a browser-uploaded file.** This site does not request or use a token.
+The portal documents programmatic access through [`neuprint-python`](https://connectome-neuprint.github.io/neuprint-python/docs/). The included starter slices are already stored locally; no login is needed to try them. A NeuPrint account token may be needed for your own queries or downloads. **Never put an API token in this repository or in a browser-uploaded file.** The site does not request or use a token.
 
 ## CSV format
 
@@ -50,6 +50,12 @@ These headers describe the expected shape, not sample observations. You can map 
 
 The two path measures answer different questions; neither is presented as a biological ground truth. Group comparisons depend on annotation coverage and the boundaries of the uploaded subgraph. A route absent from a filtered slice might still exist in the full connectome.
 
+### Included real-data starter slices
+
+[`data/demo-slices.json`](./data/demo-slices.json) contains three query-traceable Male CNS v1.0 paths: R1–R6 visual photoreceptor to pleural motor neuron (5 edges); ORN_DA1 olfactory sensory neuron to leg motor neuron (3 edges); and JO-unclear mechanosensory neuron to leg motor neuron (4 edges). These path-only slices make the explorer immediately usable while staying small enough to inspect.
+
+Important: each example records **one** shortest path returned by a source-database query. It does not contain all neighboring neurons, alternative paths, or the complete connectome. Consequently, the strength-weighted path calculated on that minimal slice has no alternative route to rank against, and raising the edge threshold can break the route. To compare competing pathways, load a broader, documented connection subgraph.
+
 ## Run locally
 
 Requires Node.js 20 or newer for tests. The website itself has no build step, server dependency or third-party JavaScript packages.
@@ -77,7 +83,9 @@ The included GitHub Actions workflow runs the tests and publishes the site when 
 ├── src/
 │   ├── analysis.js              # CSV parsing, graph summaries and path algorithms
 │   └── app.js                   # Browser upload, controls, results and route export
-└── tests/analysis.test.js       # CSV, data-cleaning, summary and path tests
+├── data/
+│   └── demo-slices.json         # Real Male CNS v1.0 paths, labels and exact source queries
+└── tests/analysis.test.js       # CSV, graph logic and source-slice integrity tests
 ```
 
 ## Scientific guardrails
@@ -88,6 +96,7 @@ The first version intentionally prioritizes a transparent graph baseline over ma
 
 ## Primary sources
 
+- Berg, S. et al. “Sexual dimorphism in the complete *Drosophila* male central nervous system connectome.” *Cell* 189(18), 5504–5526.e15 (2026). [doi:10.1016/j.cell.2026.08.015](https://doi.org/10.1016/j.cell.2026.08.015)
 - [Male Fly Central Nervous System dataset and tools](https://male-cns.janelia.org/)
 - [Male CNS data download and query guide](https://male-cns.janelia.org/download/)
 - [Male CNS v1.0 in NeuPrint](https://neuprint.janelia.org/?dataset=male-cns%3Av1.0&qt=findneurons)

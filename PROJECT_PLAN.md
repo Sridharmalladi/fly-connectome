@@ -145,7 +145,7 @@ Query or export only the tables needed for the selected cell groups and their ne
 
 ### Phase 3 — Baseline graph analysis
 
-The browser-based explorer now parses the supplied CSVs, reports graph and annotation coverage, and computes shortest and strength-weighted routes in the directed graph. It normalizes repeated directed pairs by summing their weights, excludes invalid edges and self-connections, and lets the analyst vary the minimum synapse threshold. It displays and exports the edges supporting a candidate route. No connectome data or precomputed results are bundled.
+The browser-based explorer now includes three small, source-derived shortest-path slices from the public Male CNS v1.0 dataset (visual, olfactory and mechanosensory) and records each exact NeuPrint query in `data/demo-slices.json`. Users can immediately inspect these real neuron IDs and edge counts, play or scrub through a path, and download its route table. These starter slices are individual example paths, not full neighborhoods, the full connectome, or fabricated data. The explorer also accepts uploaded CSVs, reports graph and annotation coverage, computes shortest and strength-weighted routes, sums repeated directed pairs, excludes invalid/self rows, and supports threshold sensitivity analysis.
 
 ### Phase 4 — Robustness and interpretation
 
@@ -153,7 +153,7 @@ Vary edge thresholds and scoring rules. Trace key paths back to source rows. Rea
 
 ### Phase 5 — Present the result
 
-The project now includes a [live public visual field guide](https://sridharmalladi.github.io/fly-connectome/), an interactive explorer, plain-language methods and limitations, primary data links, tests, and a GitHub Pages workflow. State the dataset version and limits prominently in any future result. Only then decide whether graph ML adds value.
+The project now includes a [live public visual field guide](https://sridharmalladi.github.io/fly-connectome/), interactive real-data pathway demonstrations, a movable path navigator, plain-language methods and limitations, primary data links, tests, and a GitHub Pages workflow. State the dataset version and limits prominently in any future result. Only then decide whether graph ML adds value.
 
 ## Repository layout
 
@@ -162,6 +162,7 @@ fly-connectome/
   README.md                 # Data workflow, methods and local/publishing guide
   PROJECT_PLAN.md           # Research question, design and scientific guardrails
   index.html / styles.css    # Accessible, responsive project and explorer
+  data/demo-slices.json      # Three source-verified real paths and query provenance
   src/analysis.js            # CSV handling, graph metrics and path algorithms
   src/app.js                 # In-browser data controls and route visualization
   tests/analysis.test.js     # Core analysis and input validation tests
