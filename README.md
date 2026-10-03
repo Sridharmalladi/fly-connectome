@@ -4,6 +4,9 @@
 
 An open, browser-based data-science project for inspecting the public [Male CNS v1.0 connectome](https://male-cns.janelia.org/). Load real connection and neuron-annotation CSVs to check data coverage, compare two sensory-to-motor path definitions, inspect their supporting edges, and download a traceable route table.
 
+[![Live site](https://img.shields.io/badge/Live%20site-Visit-9fbf72)](https://sridharmalladi.github.io/fly-connectome/)
+[![Tests and deployment](https://github.com/Sridharmalladi/fly-connectome/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/Sridharmalladi/fly-connectome/actions/workflows/pages.yml)
+
 > **No results are built in.** This repository contains no connectome data and no simulated observations. The explorer produces results only after you load source tables. Files are read in your browser and are not uploaded.
 
 ## Start here
@@ -12,7 +15,7 @@ An open, browser-based data-science project for inspecting the public [Male CNS 
 2. In the [Male CNS NeuPrint explorer](https://neuprint.janelia.org/?dataset=male-cns%3Av1.0&qt=findneurons), inspect cell-type annotations first. Choose one labeled sensory type and one labeled motor type that are both present in the data. Do not infer either role from an unlabeled cell.
 3. Export or query a **bounded, directed connection subgraph** containing the selected source neurons, the selected target neurons, and any intermediate neurons and edges needed to connect them. A table containing only direct sensory-to-motor edges cannot reveal a multi-step route. Use total connection weights, not a per-region edge export: summing repeated region rows would double-count a connection. Record how you selected the subgraph, the dataset version, date, filters, and any API query settings.
 4. Obtain the matching neuron-annotation table for those neurons. Preserve body IDs; include cell-type labels and, if available, brain-region annotations.
-5. Open the live site and load the connection CSV and annotation CSV. Check the column mapping and annotation coverage before interpreting a route. Raise the minimum-synapse threshold and repeat the analysis to see whether the routes change.
+5. Open the [live site](https://sridharmalladi.github.io/fly-connectome/) and load the connection CSV and annotation CSV. Check the column mapping and annotation coverage before interpreting a route. Raise the minimum-synapse threshold and repeat the analysis to see whether the routes change.
 
 The portal documents programmatic access through [`neuprint-python`](https://connectome-neuprint.github.io/neuprint-python/docs/). NeuPrint account credentials may be required to download/query data. **Never put an API token in this repository or in a browser-uploaded file.** This site does not request or use a token.
 

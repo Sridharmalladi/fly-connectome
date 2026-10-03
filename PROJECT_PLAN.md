@@ -153,7 +153,7 @@ Vary edge thresholds and scoring rules. Trace key paths back to source rows. Rea
 
 ### Phase 5 — Present the result
 
-The project now includes a public-facing visual field guide, an interactive explorer, plain-language methods and limitations, primary data links, tests, and a GitHub Pages workflow. State the dataset version and limits prominently in any future result. Only then decide whether graph ML adds value.
+The project now includes a [live public visual field guide](https://sridharmalladi.github.io/fly-connectome/), an interactive explorer, plain-language methods and limitations, primary data links, tests, and a GitHub Pages workflow. State the dataset version and limits prominently in any future result. Only then decide whether graph ML adds value.
 
 ## Repository layout
 
