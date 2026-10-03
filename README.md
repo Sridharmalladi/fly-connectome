@@ -7,7 +7,7 @@ An open, browser-based data-science project for inspecting the public [Male CNS 
 [![Live site](https://img.shields.io/badge/Live%20site-Visit-9fbf72)](https://sridharmalladi.github.io/fly-connectome/)
 [![Tests and deployment](https://github.com/Sridharmalladi/fly-connectome/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/Sridharmalladi/fly-connectome/actions/workflows/pages.yml)
 
-> **No results are built in.** This repository contains no connectome data and no simulated observations. The explorer produces results only after you load source tables. Files are read in your browser and are not uploaded.
+> **No results are built in.** This repository contains no connectome data and no simulated observations. The hero neuron artwork is conceptual, not a measured route. The explorer produces results only after you load source tables. Files are read in your browser and are not uploaded.
 
 ## Start here
 
